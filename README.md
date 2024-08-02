@@ -46,7 +46,7 @@ If you want to build the project from the source code:
 1. Clone this repository:
 
    ```sh
-   git clone https://github.com/your-username/your-repo.git
+   git clone https://github.com/mikeorte/Bing-Background.git
    ```
 2. Open the project in Visual Studio.
 3. Build the solution in Release mode.
