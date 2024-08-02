@@ -1,193 +1,166 @@
-﻿using Microsoft.Win32;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
+using Newtonsoft.Json;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 
-namespace BingBackground
+public class BingBackground
 {
+    private const string BingApiUrl = "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US";
+    private const string DefaultResolution = "_1920x1080.jpg";
 
-    class BingBackground
+    private enum PicturePosition
     {
+        Tile,
+        Center,
+        Stretch,
+        Fit,
+        Fill
+    }
 
-        private static void Main(string[] args)
+    public static void Main()
+    {
+        try
         {
-            string urlBase = GetBackgroundUrlBase();
-            System.Drawing.Image background = DownloadBackground(urlBase + GetResolutionExtension(urlBase));
-            SaveBackground(background);
-            SetBackground(GetPosition());
+            string backgroundUrl = GetBackgroundUrlBase() + DefaultResolution;
+            Image background = DownloadBackground(backgroundUrl);
+            string filePath = GetBackgroundImageFilePath();
+            background.Save(filePath);
+            SetWallpaper(filePath, GetPosition(background));
+            Console.WriteLine("Background updated successfully.");
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
+    }
 
-        private static dynamic DownloadJson()
+    private static dynamic DownloadJson()
+    {
+        try
         {
             using (WebClient webClient = new WebClient())
             {
                 Console.WriteLine("Downloading JSON...");
-                string jsonString = webClient.DownloadString("https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US");
+                string jsonString = webClient.DownloadString(BingApiUrl);
                 return JsonConvert.DeserializeObject<dynamic>(jsonString);
             }
         }
-
-        private static string GetBackgroundUrlBase()
+        catch (Exception ex)
         {
-            dynamic jsonObject = DownloadJson();
-            return "https://www.bing.com" + jsonObject.images[0].urlbase;
+            Console.WriteLine($"Error downloading JSON: {ex.Message}");
+            return null;
         }
-
-        private static string GetBackgroundTitle()
-        {
-            dynamic jsonObject = DownloadJson();
-            string copyrightText = jsonObject.images[0].copyright;
-            return copyrightText.Substring(0, copyrightText.IndexOf(" ("));
-        }
-
-        private static bool WebsiteExists(string url)
-        {
-            try
-            {
-                WebRequest request = WebRequest.Create(url);
-                request.Method = "HEAD";
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                return response.StatusCode == HttpStatusCode.OK;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private static string GetResolutionExtension(string url)
-        {
-            Rectangle resolution = Screen.PrimaryScreen.Bounds;
-            string widthByHeight = resolution.Width + "x" + resolution.Height;
-            string potentialExtension = "_" + widthByHeight + ".jpg";
-            if (WebsiteExists(url + potentialExtension))
-            {
-                Console.WriteLine("Background for " + widthByHeight + " found.");
-                return potentialExtension;
-            }
-            else
-            {
-                Console.WriteLine("No background for " + widthByHeight + " was found.");
-                Console.WriteLine("Using 1920x1080 instead.");
-                return "_1920x1080.jpg";
-            }
-        }
-
-        private static void SetProxy()
-        {
-            string proxyUrl = ""; // Add your proxy URL here if needed.
-            if (proxyUrl.Length > 0)
-            {
-                var webProxy = new WebProxy(proxyUrl, true);
-                webProxy.Credentials = CredentialCache.DefaultCredentials;
-                WebRequest.DefaultWebProxy = webProxy;
-            }
-        }
-
-        private static System.Drawing.Image DownloadBackground(string url)
-        {
-            Console.WriteLine("Downloading background...");
-            SetProxy();
-            WebRequest request = WebRequest.Create(url);
-            WebResponse response = request.GetResponse();
-            Stream stream = response.GetResponseStream();
-            return System.Drawing.Image.FromStream(stream);
-        }
-
-        private static string GetBackgroundImagePath()
-        {
-            string directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "Bing Backgrounds", DateTime.Now.Year.ToString());
-            Directory.CreateDirectory(directory);
-            return Path.Combine(directory, DateTime.Now.ToString("M-d-yyyy") + ".bmp");
-        }
-
-        private static void SaveBackground(System.Drawing.Image background)
-        {
-            Console.WriteLine("Saving background...");
-            background.Save(GetBackgroundImagePath(), ImageFormat.Bmp);
-        }
-
-        private enum PicturePosition
-        {
-            Tile,
-            Center,
-            Stretch,
-            Fit,
-            Fill
-        }
-
-        private static PicturePosition GetPosition()
-        {
-            PicturePosition position = PicturePosition.Fit;
-            // Adjust this section according to your needs, or hardcode the value for testing.
-            string positionSetting = "Fit"; // Replace with actual setting or keep for testing.
-            switch (positionSetting)
-            {
-                case "Tile":
-                    position = PicturePosition.Tile;
-                    break;
-                case "Center":
-                    position = PicturePosition.Center;
-                    break;
-                case "Stretch":
-                    position = PicturePosition.Stretch;
-                    break;
-                case "Fit":
-                    position = PicturePosition.Fit;
-                    break;
-                case "Fill":
-                    position = PicturePosition.Fill;
-                    break;
-            }
-            return position;
-        }
-
-        internal sealed class NativeMethods
-        {
-            [DllImport("user32.dll", CharSet = CharSet.Auto)]
-            internal static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
-        }
-
-        private static void SetBackground(PicturePosition style)
-        {
-            Console.WriteLine("Setting background...");
-            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(Path.Combine("Control Panel", "Desktop"), true))
-            {
-                switch (style)
-                {
-                    case PicturePosition.Tile:
-                        key.SetValue("PicturePosition", "0");
-                        key.SetValue("TileWallpaper", "1");
-                        break;
-                    case PicturePosition.Center:
-                        key.SetValue("PicturePosition", "0");
-                        key.SetValue("TileWallpaper", "0");
-                        break;
-                    case PicturePosition.Stretch:
-                        key.SetValue("PicturePosition", "2");
-                        key.SetValue("TileWallpaper", "0");
-                        break;
-                    case PicturePosition.Fit:
-                        key.SetValue("PicturePosition", "6");
-                        key.SetValue("TileWallpaper", "0");
-                        break;
-                    case PicturePosition.Fill:
-                        key.SetValue("PicturePosition", "10");
-                        key.SetValue("TileWallpaper", "0");
-                        break;
-                }
-            }
-            const int SetDesktopBackground = 20;
-            const int UpdateIniFile = 1;
-            const int SendWindowsIniChange = 2;
-            NativeMethods.SystemParametersInfo(SetDesktopBackground, 0, GetBackgroundImagePath(), UpdateIniFile | SendWindowsIniChange);
-        }
-
     }
 
+    private static string GetBackgroundUrlBase()
+    {
+        dynamic jsonObject = DownloadJson();
+        return "https://www.bing.com" + jsonObject.images[0].urlbase;
+    }
+
+    private static string GetBackgroundTitle()
+    {
+        dynamic jsonObject = DownloadJson();
+        string copyrightText = jsonObject.images[0].copyright;
+        return copyrightText.Substring(0, copyrightText.IndexOf(" ("));
+    }
+
+    private static Image DownloadBackground(string url)
+    {
+        Console.WriteLine("Downloading background...");
+        WebRequest request = WebRequest.Create(url);
+        using (WebResponse response = request.GetResponse())
+        using (Stream stream = response.GetResponseStream())
+        {
+            return Image.FromStream(stream);
+        }
+    }
+
+    private static string GetBackgroundImageFilePath()
+    {
+        string directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "Bing Backgrounds", DateTime.Now.Year.ToString());
+        Directory.CreateDirectory(directory);
+        return Path.Combine(directory, DateTime.Now.ToString("M-d-yyyy") + ".bmp");
+    }
+
+    private static void SetWallpaper(string filePath, PicturePosition position)
+    {
+        const int SPI_SETDESKWALLPAPER = 20;
+        const int SPIF_UPDATEINIFILE = 0x01;
+        const int SPIF_SENDWININICHANGE = 0x02;
+
+        string style;
+        string tileWallpaper;
+
+        switch (position)
+        {
+            case PicturePosition.Tile:
+                style = "0";
+                tileWallpaper = "1";
+                break;
+            case PicturePosition.Center:
+                style = "0";
+                tileWallpaper = "0";
+                break;
+            case PicturePosition.Stretch:
+                style = "2";
+                tileWallpaper = "0";
+                break;
+            case PicturePosition.Fit:
+                style = "6";
+                tileWallpaper = "0";
+                break;
+            case PicturePosition.Fill:
+                style = "10";
+                tileWallpaper = "0";
+                break;
+            default:
+                style = "0";
+                tileWallpaper = "0";
+                break;
+        }
+
+        using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true))
+        {
+            key.SetValue(@"WallpaperStyle", style);
+            key.SetValue(@"TileWallpaper", tileWallpaper);
+        }
+
+        SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, filePath, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+    }
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    private static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
+
+    private static PicturePosition GetPosition(Image background)
+    {
+        // Get screen dimensions
+        int screenWidth = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;
+        int screenHeight = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;
+
+        // Get image dimensions
+        int imageWidth = background.Width;
+        int imageHeight = background.Height;
+
+        // Calculate aspect ratios
+        float screenAspectRatio = (float)screenWidth / screenHeight;
+        float imageAspectRatio = (float)imageWidth / imageHeight;
+
+        // Determine the best position based on aspect ratios
+        if (Math.Abs(screenAspectRatio - imageAspectRatio) < 0.1)
+        {
+            return PicturePosition.Fill; // Use Fill if aspect ratios are similar
+        }
+        else if (screenAspectRatio > imageAspectRatio)
+        {
+            return PicturePosition.Fit; // Use Fit if screen is wider than image
+        }
+        else
+        {
+            return PicturePosition.Stretch; // Use Stretch if image is wider than screen
+        }
+    }
 }
+
