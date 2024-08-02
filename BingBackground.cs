@@ -27,15 +27,18 @@ public class BingBackground
             Image background = DownloadBackground(backgroundUrl);
             string filePath = GetBackgroundImageFilePath();
             background.Save(filePath);
+            // Set the wallpaper with the best position
             SetWallpaper(filePath, GetPosition(background));
             Console.WriteLine("Background updated successfully.");
         }
         catch (Exception ex)
         {
+            // Print any errors that occur
             Console.WriteLine($"An error occurred: {ex.Message}");
         }
     }
 
+    // Method to download JSON data from Bing API
     private static dynamic DownloadJson()
     {
         try
@@ -44,29 +47,36 @@ public class BingBackground
             {
                 Console.WriteLine("Downloading JSON...");
                 string jsonString = webClient.DownloadString(BingApiUrl);
+                // Deserialize JSON string to dynamic object
                 return JsonConvert.DeserializeObject<dynamic>(jsonString);
             }
         }
         catch (Exception ex)
         {
+            // Print any errors that occur
             Console.WriteLine($"Error downloading JSON: {ex.Message}");
             return null;
         }
     }
 
+    // Method to get the base URL for the background image
     private static string GetBackgroundUrlBase()
     {
         dynamic jsonObject = DownloadJson();
+        // Construct the full URL for the image
         return "https://www.bing.com" + jsonObject.images[0].urlbase;
     }
 
+    // Method to get the title of the background image
     private static string GetBackgroundTitle()
     {
         dynamic jsonObject = DownloadJson();
+        // Extract the title from the copyright text
         string copyrightText = jsonObject.images[0].copyright;
         return copyrightText.Substring(0, copyrightText.IndexOf(" ("));
     }
 
+    // Method to download the background image from a URL
     private static Image DownloadBackground(string url)
     {
         Console.WriteLine("Downloading background...");
@@ -74,17 +84,22 @@ public class BingBackground
         using (WebResponse response = request.GetResponse())
         using (Stream stream = response.GetResponseStream())
         {
+            // Create an Image object from the stream
             return Image.FromStream(stream);
         }
     }
 
+    // Method to get the file path to save the background image
     private static string GetBackgroundImageFilePath()
     {
+        // Create a directory path based on the current year
         string directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "Bing Backgrounds", DateTime.Now.Year.ToString());
         Directory.CreateDirectory(directory);
+        // Create a file path with the current date
         return Path.Combine(directory, DateTime.Now.ToString("M-d-yyyy") + ".bmp");
     }
 
+    // Method to set the wallpaper with a specified position
     private static void SetWallpaper(string filePath, PicturePosition position)
     {
         const int SPI_SETDESKWALLPAPER = 20;
@@ -94,6 +109,7 @@ public class BingBackground
         string style;
         string tileWallpaper;
 
+        // Set the style and tileWallpaper based on the position
         switch (position)
         {
             case PicturePosition.Tile:
@@ -122,18 +138,22 @@ public class BingBackground
                 break;
         }
 
+        // Update the registry settings for the wallpaper
         using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true))
         {
             key.SetValue(@"WallpaperStyle", style);
             key.SetValue(@"TileWallpaper", tileWallpaper);
         }
 
+        // Set the wallpaper using the SystemParametersInfo function
         SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, filePath, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
     }
 
+    // Import the SystemParametersInfo function from user32.dll
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     private static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
 
+    // Method to determine the best position for the wallpaper
     private static PicturePosition GetPosition(Image background)
     {
         // Get screen dimensions
@@ -163,4 +183,3 @@ public class BingBackground
         }
     }
 }
-
