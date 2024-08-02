@@ -1,0 +1,66 @@
+# Ignore Visual Studio temporary files, build results, and
+# build log files
+*.log
+*.obj
+*.bin
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.ipch
+*.tlog
+*.vspscc
+*.vssscc
+*.nupkg
+*.ncrunchsolution
+*.cssproj.user
+*.resx
+*.rdoc
+*.sc
+*.xoml
+
+# Ignore Visual Studio working folder
+.vs/
+
+# Ignore Visual Studio Code workspace settings file
+.vscode/
+
+# Ignore build outputs
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]uild/
+[Bb]uild[Ll]og.*
+
+# Ignore NuGet Packages
+*.nupkg
+# The packages folder can be ignored because of Package Restore
+**/packages/*
+!**/packages/build/
+!**/packages/repositories.config
+
+# Ignore project-related files
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Ignore IDE settings
+.idea/
+.idea/*
+
+# Ignore test results
+TestResults/
+
+# Ignore temporary files
+*.tmp
+*.tmp_proj
+*.log
+*.svclog
+
+# Ignore user-specific files
+*.rsuser
+*.rsdf
