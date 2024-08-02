@@ -7,7 +7,7 @@ BingBackground is a simple C# application that automatically downloads the daily
 - Downloads the daily Bing background image.
 - Automatically sets the image as your desktop wallpaper.
 - Supports different screen resolutions.
-- Option to choose different wallpaper styles (Tile, Center, Stretch, Fit, Fill).
+- Automatically adjusts the wallpaper style (Tile, Center, Stretch, Fit, Fill) based on the image and screen resolution.
 
 ## Getting Started
 
