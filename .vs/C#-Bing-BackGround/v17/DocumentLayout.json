@@ -1,10 +1,10 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\mrort\\Documents\\Projects\\CSharp-Bing-BackGround\\",
+  "WorkspaceRootPath": "C:\\Users\\mrort\\Documents\\Projects\\C#-Bing-BackGround\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{45462B97-B39A-42F5-9CD8-0C62944986EE}|CSharp-Bing-BackGround.csproj|c:\\users\\mrort\\documents\\projects\\csharp-bing-background\\bingbackground.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{45462B97-B39A-42F5-9CD8-0C62944986EE}|CSharp-Bing-BackGround.csproj|solutionrelative:bingbackground.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{45462B97-B39A-42F5-9CD8-0C62944986EE}|C#-Bing-BackGround.csproj|c:\\users\\mrort\\documents\\projects\\c#-bing-background\\bingbackground.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{45462B97-B39A-42F5-9CD8-0C62944986EE}|C#-Bing-BackGround.csproj|solutionrelative:bingbackground.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -24,9 +24,9 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "BingBackground.cs",
-              "DocumentMoniker": "C:\\Users\\mrort\\Documents\\Projects\\CSharp-Bing-BackGround\\BingBackground.cs",
+              "DocumentMoniker": "C:\\Users\\mrort\\Documents\\Projects\\C#-Bing-BackGround\\BingBackground.cs",
               "RelativeDocumentMoniker": "BingBackground.cs",
-              "ToolTip": "C:\\Users\\mrort\\Documents\\Projects\\CSharp-Bing-BackGround\\BingBackground.cs",
+              "ToolTip": "C:\\Users\\mrort\\Documents\\Projects\\C#-Bing-BackGround\\BingBackground.cs",
               "RelativeToolTip": "BingBackground.cs",
               "ViewState": "AQIAAKYAAAAAAAAAAAAAALEAAAAeAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
